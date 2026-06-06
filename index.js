@@ -1,0 +1,12 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const Anthropic = require('@anthropic-ai/sdk');
+const app = express();
+app.use(cors());
+app.use(express.json());
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+app.get('/', (req, res) => res.json({ status: 'TorqLogic Server Running' }));
+app.post('/diagnose', async (req, res) => { try { const { messages, system } = req.body; const response = await client.messages.create({ model: 'claude-sonnet-4-5', max_tokens: 1024, system: system, messages: messages }); res.json({ content: response.content }); } catch (error) { res.status(500).json({ error: error.message }); } });
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('TorqLogic server running on port ' + PORT));
