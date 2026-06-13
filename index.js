@@ -22,7 +22,7 @@ app.post('/diagnose', async (req, res) => {
     const { messages, system } = req.body;
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: system,
       messages: messages,
     });
