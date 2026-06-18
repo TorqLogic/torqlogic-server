@@ -2,22 +2,28 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
-
+const rateLimit = require('express-rate-limit');
 const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '50mb' }));
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const diagnoseLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 15,
+  message: { error: 'Too many requests - please wait a moment before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 app.get('/', (req, res) => {
   res.json({ status: 'TorqLogic Server Running' });
 });
-
 app.get('/ping', (req, res) => {
   res.json({ status: 'alive' });
 });
 
-app.post('/diagnose', async (req, res) => {
+app.post('/diagnose', diagnoseLimiter, async (req, res) => {
   try {
     const { messages, system } = req.body;
     const response = await client.messages.create({
