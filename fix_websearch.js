@@ -1,4 +1,6 @@
-require('dotenv').config();
+const fs = require('fs');
+
+const newServerCode = `require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const Anthropic = require('@anthropic-ai/sdk');
@@ -79,3 +81,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('TorqLogic server running on port ' + PORT);
 });
+`;
+
+fs.writeFileSync('index.js', newServerCode);
+console.log('Done!');
